@@ -8,16 +8,11 @@ import java.lang.reflect.{Field, Method}
 class JSComponents {}
 
 /**
- * A Scala constructor
+ * TODO: support overloaded constructors?
  */
 class JSScalaConstructor(cls:Class[AnyRef]) extends ScriptableObject with Function {
   val constructor = {
-    // how do we pick out the correct constructor?
-    val constructors = ReflectionUtils.getAllConstructors(cls).filter((c)=>{
-      c.getAnnotation[JSClass](classOf[JSClass]) != null
-    })
-    if (constructors.length != 1) throw new IllegalArgumentException(constructors.length + " enabled constructors were found (required: 1)")
-    constructors(0)
+    ReflectionUtils.getAllConstructors(cls).filter((c)=>{c.getAnnotation[JSClass](classOf[JSClass]) != null})(0)
   }
  
   lazy val clsName = ReflectionUtils.getShortName(cls)
@@ -28,7 +23,7 @@ class JSScalaConstructor(cls:Class[AnyRef]) extends ScriptableObject with Functi
     new JSScalaObject(obj);
   }
 
-  def call(cx: Context, scope: Scriptable, thisObj: Scriptable, args: Array[AnyRef]) = null
+  def call(cx: Context, scope: Scriptable, thisObj: Scriptable, args: Array[AnyRef]) = throw new UnsupportedOperationException();
 }
 
 /**
@@ -45,23 +40,44 @@ class JSScalaObject(val obj:AnyRef) extends ScriptableObject with Wrapper {
 
   def unwrap = obj
   def getClassName = ""
+
+  override def put(name: String, start: Scriptable, value: AnyRef) =
+  {
+    val inSlot = get(name, start)
+    inSlot match {
+      case f:JSScalaField => f.field.set(f.obj, ArgumentConvertor.jsToScala(value)) // TODO: make field accessible
+      case _ => super.put(name, start, value)
+    }
+  }
+
+  override def get(name: String, start: Scriptable) = {
+    val inSlot = get(name, start)
+    inSlot match {
+      case f:JSScalaField => f.field.get(f.obj) // TODO: cache the intermediate results, wrap
+      case _ => super.get(name, start)
+    }
+  }
 }
 
 /**
- *
+ * TODO: support overloaded methods?
  */
 class JSScalaMethod(obj:AnyRef, method:Method) extends ScriptableObject with Function {
   def getClassName = ""
 
-  def construct(cx: Context, scope: Scriptable, args: Array[AnyRef]) = null
+  def construct(cx: Context, scope: Scriptable, args: Array[AnyRef]) = throw new UnsupportedOperationException();
 
   def call(cx: Context, scope: Scriptable, thisObj: Scriptable, args: Array[AnyRef]) = {
-    null
+    ArgumentConvertor.scalaToJs(method.invoke(obj, ArgumentConvertor.jsToScala(args)))
   }
 }
 
-class JSScalaField(val obj:AnyRef, val field:Field) extends ScriptableObject {
-  def getClassName = ""
-  // TODO
-}
+class JSScalaField(val obj:AnyRef, val field:Field) {}
 
+object ArgumentConvertor {
+  def jsToScala(args: Array[AnyRef]): Array[AnyRef] = {args}
+  def jsToScala(arg:AnyRef): AnyRef = {arg}
+
+  def scalaToJs(args: Array[AnyRef]): Array[AnyRef] = {args}
+  def scalaToJs(arg: AnyRef): AnyRef = {arg}
+}
