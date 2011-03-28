@@ -7,8 +7,8 @@ object ReflectionUtils {
     cls.getDeclaredConstructors().asInstanceOf[Array[Constructor[T]]].toList
   }
 
-  def getAllMethods[T](cls:Class[T]): List[Method] = {
-    cls.getDeclaredMethods().toList ++ (if (cls.getSuperclass() != null) getAllMethods(cls.getSuperclass()) else Nil)
+  def getAllMethods[T](cls:Class[T], includeObject:Boolean = true): List[Method] = {
+    cls.getDeclaredMethods().toList ++ (if (cls.getSuperclass() != classOf[AnyRef] || includeObject && cls.getSuperclass() != null) getAllMethods(cls.getSuperclass()) else Nil)
   }
 
   def getAllFields[T](cls:Class[T]): List[Field] = {
