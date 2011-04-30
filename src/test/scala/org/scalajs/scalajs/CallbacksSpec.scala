@@ -20,6 +20,7 @@ object CallbacksSpec extends Specification("Callbacks Specification") {
 
       def eval(s:String) = ctx.evaluateString(scope, s, "Callbacks", 1, null)
 
+      val obj = conversion.unwrap[Int](eval("var x = 5; x")) must_== 5
       val cbk0  = conversion.unwrap[()=>Int](eval("var x = function() {return 0}; x"))
       val cbk1  = conversion.unwrap[Int=>Int](eval("var x = function(a) {return a + 1}; x"))
       val cbk2 = conversion.unwrap[(Int,Int)=>Int](eval("var x = function(a, b) {return a + b}; x"))

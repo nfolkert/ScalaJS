@@ -35,10 +35,10 @@ class Conversions(ctx: Context, scope: Scriptable) {
           case v if v == cf5 => ((a:A,b:A,c:A,d:A,e:A) => call(fn, Array[A](a,b,c,d,e))).asInstanceOf[T]
           case v if v == cf6 => ((a:A,b:A,c:A,d:A,e:A,f:A) => call(fn, Array[A](a,b,c,d,e,f))).asInstanceOf[T]
 
-          case _ => throw new UnsupportedOperationException()
+          case _ => throw new UnsupportedOperationException("Currently only functions up to 6 arguments are supported")
         }
       }
-      case _ => throw new UnsupportedOperationException()
+      case obj => unwrapBasic(obj, mf).asInstanceOf[T]
     }
   }
 }
