@@ -8,10 +8,10 @@ package callbacksspec {
 
 }
 
-object CallbacksSpec extends Specification("Callbacks Specification") {
+object ConversionsSpec extends Specification("Conversions Specification") {
   import callbacksspec._
 
-  "Callbacks" should {
+  "Conversions" should {
 
     "return a callback that can be applied in an enclosing scala context" in {
       val ctx:Context = new ContextFactory().enterContext()
