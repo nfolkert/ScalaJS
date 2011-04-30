@@ -41,4 +41,8 @@ class Conversions(ctx: Context, scope: Scriptable) {
       case obj => unwrapBasic(obj, mf).asInstanceOf[T]
     }
   }
+
+  // TODO: unwrap to JSON objects; unwrap to collections (use manifest for component conversion)
+  // TODO: better way to user manifest in the functions?
+  // TODO: wrap method that will convert JSON objects appropriately
 }
